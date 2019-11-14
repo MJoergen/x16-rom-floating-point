@@ -12,6 +12,7 @@ ARGS_KERNAL=-g
 ARGS_BASIC=-g
 #ARGS_MONITOR=-g
 #ARGS_DOS=-g
+#ARGS_GEOS=-g
 
 
 ASFLAGS      = -I geos/inc -I geos -g
@@ -160,13 +161,15 @@ PREFIXED_GEOS_OBJS = $(addprefix $(GEOS_BUILD_DIR)/, $(GEOS_OBJS))
 
 $(GEOS_BUILD_DIR)/%.o: %.s
 	@mkdir -p `dirname $@`
-	$(AS) -D bsw=1 -D drv1541=1 $(ASFLAGS) $< -o $@
+	$(AS) $(ARGS_GEOS) -D bsw=1 -D drv1541=1 $(ASFLAGS) $< -o $@
 
 all: $(PREFIXED_GEOS_OBJS)
 	$(AS) -o kernsup/kernsup.o kernsup/kernsup.s
 	$(AS) -o kernsup/irqsup.o kernsup/irqsup.s
 
 	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
+
+	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o fplib/fplib.o fplib/fplib.s
 
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
 
@@ -188,11 +191,11 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) -o charset/petscii.o charset/petscii.tmp.s
 	$(AS) -o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
 
-	$(LD) -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/zeropage.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/petscii.o charset/iso-8859-15.o kernsup/kernsup.o kernsup/irqsup.o $(PREFIXED_GEOS_OBJS) -Ln rom.txt
+	$(LD) -C rom.cfg -o rom.bin basic/basic.o fplib/fplib.o kernal/kernal.o monitor/monitor.o cbdos/zeropage.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/petscii.o charset/iso-8859-15.o kernsup/kernsup.o kernsup/irqsup.o $(PREFIXED_GEOS_OBJS) -Ln rom.txt -m rom.map
 
 clean:
 	rm -f kernsup/*.o
-	rm -f basic/basic.o kernal/kernal.o rom.bin
+	rm -f basic/basic.o fplib/fplib.o kernal/kernal.o rom.bin
 	rm -f monitor/monitor.o monitor/monitor_support.o
 	rm -f cbdos/*.o
 	rm -f keymap/keymap.o

@@ -30,6 +30,8 @@
 .import FirstInit
 .import i_FillRam
 
+.import _Rectangle, _SetColor
+
 .import MouseInit
 
 ; used by header.s
@@ -48,28 +50,24 @@
 
 .segment "start"
 
-; The original version of GEOS 2.0 has purgeable init code
-; at $5000 that is run once. It does some initialization
-; and handles application auto-start.
-;
-; The cbmfiles version of GEOS does some init inside
-; "BOOTGEOS" right after copying the components to their
-; respective locations, then jumps to $500D, which contains
-; a different version of the code, and skipping the first
-; five instructions.
-;
-; This version is based on the cbmfiles version.
-; "OrigResetHandle" below is the original cbmfiles code at
-; $5000, and the code here at _ResetHandle is some additional
-; initialization derived from the code in BOOTGEOS to make
-; everything work.
-;
-; TODO: * REU detection seems to be currently missing.
-;       * It would be best to put the original GEOS 2.0 code
-;         here.
-;
+; for KERNAL
+.global geos_init_graphics
 
-.global geos_init_vera
+geos_init_graphics:
+	lda #1 ; white
+	jsr _SetColor
+
+	lda #0
+	sta r3L
+	sta r3H
+	sta r2L
+	lda #<319
+	sta r4L
+	lda #>319
+	sta r4H
+	lda #199
+	sta r2H
+	jsr _Rectangle
 
 tile_base = $10000
 
@@ -101,54 +99,6 @@ px5:	lda tvera_composer,x
 	cpx #tvera_composer_end-tvera_composer
 	bne px5
 
-sprite_addr = $10000 + 320 * 200 ; after background screen
-
-	; init sprites
-	lda #$00
-	sta veralo
-	lda #$40
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #1
-	sta veradat ; enable sprites
-
-	lda #$00
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #<(sprite_addr >> 5)
-	sta veradat
-	lda #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
-	sta veradat
-
-	lda #<sprite_addr
-	sta veralo
-	lda #>sprite_addr
-	sta veramid
-	lda #$10 | (sprite_addr >> 16)
-	sta verahi
-	ldx #8
-xx2:	txa
-	tay
-	lda #6
-:	sta veradat
-	dey
-	bne :-
-	txa
-	sec
-	sbc #8
-	eor #$ff
-	clc
-	adc #1
-	beq xx1
-	tay
-	lda #0
-:	sta veradat
-	dey
-	bne :-
-xx1:	dex
-	bne xx2
 	rts
 
 hstart  =0
@@ -224,7 +174,7 @@ _ResetHandle:
 	sta interleave
 
 	lda #1
-	sta NUMDRV
+	sta numDrives
 	ldy $BA
 	sty curDrive
 	lda #DRV_TYPE ; see config.inc
@@ -253,9 +203,9 @@ OrigResetHandle:
 @1:	MoveB bootSec2, r1H
 	MoveB bootTr2, r1L
 	bne @3
-	lda NUMDRV
+	lda numDrives
 	bne @2
-	inc NUMDRV
+	inc numDrives
 @2:	LoadW EnterDeskTop+1, _EnterDeskTop
 .ifdef useRamExp
 	jsr LoadDeskTop

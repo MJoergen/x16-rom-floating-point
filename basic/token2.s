@@ -69,10 +69,14 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "FRAM", 'E' + $80
 	.byt "REC", 'T' + $80
 	.byt "CHA", 'R' + $80
+	.byt "MOUS", 'E' + $80
 	.byt "VPEE", 'K' + $80
+	.byt "M", 'X' + $80
+	.byt "M", 'Y' + $80
+	.byt "M", 'B' + $80
 	.byt 0
-num_esc_statements = 12
-num_esc_functions = 1
+num_esc_statements = 13
+num_esc_functions = 4
 ;**************************************
 
 err01	.byt "TOO MANY FILE",$d3
@@ -163,9 +167,9 @@ errtab	.word err01
 okmsg	.byt $d,"OK",$d,$0
 err	.byt $20," ERROR",0 ;add a space for vic-40 screen
 intxt	.byt " IN ",0
-reddy	.byt $d,$a,"READY.",$d,$a,0
+reddy	.byt $d,"READY.",$d,0
 erbrk	=30
-brktxt	.byt $d,$a
+brktxt	.byt $d
 err30	.byt "BREAK",0,$a0 ;shifted space
 
 forsiz	=$12
