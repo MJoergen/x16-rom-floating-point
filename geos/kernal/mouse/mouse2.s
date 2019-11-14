@@ -249,7 +249,7 @@ SlowMouse:
 SetMouse:
 	rts ;XXX X16 TODO
 
-tmpFire = mouseAccel ; reuse of unused location
+tmpFire = $9eff
 
 UpdateMouse:
 ;XXX: X16: deskTop overwrites $033c+, so we need to do this.

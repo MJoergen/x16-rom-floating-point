@@ -60,6 +60,20 @@ _FirstInit:
 .endif
 
 .ifdef wheels
+.import sysScrnColors
+	MoveB sysScrnColors, screencolors
+.else
+.ifndef bsw128
+	LoadB screencolors, (DKGREY << 4)+LTGREY
+	sta @1
+.endif
+	jsr i_FillRam
+	.word 1000
+	.word COLOR_MATRIX
+@1:	.byte (DKGREY << 4)+LTGREY
+.endif
+
+.ifdef wheels
 .import sysMob0Clr
 .import sysExtClr
 .import DrawCheckeredScreen
@@ -85,5 +99,5 @@ _FirstInit3:
 .elseif .defined(bsw128)
 	jmp _SetMsePic
 .else
-	rts
+	jmp UNK_6
 .endif
