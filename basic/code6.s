@@ -4,7 +4,12 @@ timelp	sty fbufpt
 	inc fbufpt
 	ldy fbufpt
 	jsr timnum
-   jsr mul6
+	jsr movaf
+	tax
+	beq noml6
+	inx
+	txa
+	jsr finml6
 noml6	ldy fbufpt
 	iny
 	cpy #6
